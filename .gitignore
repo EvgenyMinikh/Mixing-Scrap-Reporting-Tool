@@ -4,3 +4,5 @@ __pycache__
 build
 dist
 *.spec
+mixing_label_template - orig.svg
+mixing.svg

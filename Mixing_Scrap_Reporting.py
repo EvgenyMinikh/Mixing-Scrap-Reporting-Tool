@@ -2,13 +2,18 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.uic import *
 from configparser import ConfigParser
-import json
-import sys
+from json import load
+from os import path, startfile
 
-MAIN_UI_WINDOW_PATH = './main_window.ui'
-CONFIG_FILENAME = './config.cfg'
-SHIFT_SUPERVISORS_FILE_PATH = './shift_supervisors.csv'
-INCONSISTENCY_REASONS_FILE_PATH = './list_items.json'
+this_script_dir = path.dirname(path.realpath(__file__))
+
+NUMBER_OF_COPIES_DEFAULT_VALUE = 1
+MAIN_UI_WINDOW_PATH = this_script_dir + '\\main_window.ui'
+CONFIG_FILENAME = this_script_dir + '\\config.cfg'
+SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
+INCONSISTENCY_REASONS_FILE_PATH = this_script_dir + '\\list_items.json'
+LABEL_TEMPLATE_PATH = this_script_dir + '\\mixing_label_template.svg'
+LABEL_OUT_PATH = this_script_dir + '\\mixing.svg'
 
 config = ConfigParser()
 config.read_file(open(CONFIG_FILENAME, encoding="utf8"))
@@ -16,6 +21,7 @@ BUFFER_WORKBOOK_PATH = config.get('Paths', 'BUFFER_WORKBOOK_PATH')
 FIRST_LINE_NUMBER = int(config.get('List Settings', 'FIRST_LINE_NUMBER'))
 LAST_LINE_NUMBER = int(config.get('List Settings', 'LAST_LINE_NUMBER'))
 SHIFTS = config.get('List Settings', 'SHIFTS')
+DATE_FORMAT = config.get('Common Config', 'DATE_FORMAT')
 
 
 def get_mixing_line_numbers_list(first, last):
@@ -42,9 +48,20 @@ def get_shift_supervisors_list(file_path):
 
 def read_json_from_file(path):
     with open(path) as json_file:
-        json_data = json.load(json_file)
+        json_data = load(json_file)
 
     return json_data
+
+
+def create_new_SVG_file_with_data(template_path, output_path, data_values):
+    with open(template_path, mode='r', encoding='UTF8') as f:
+        content = f.read()
+
+        for key, value in data_values.items():
+            content = content.replace('{%s}' % key, str(value))
+
+    with open(output_path, mode='w', encoding='UTF8') as f:
+        f.write(content)
 
 
 def get_inconsistency_types_list(json_data):
@@ -53,13 +70,25 @@ def get_inconsistency_types_list(json_data):
     return value_list
 
 
+def data_checker(data_values):
+    result = []
+    for key, value in data_values.items():
+        if value == '':
+            result.append('Поле "{}" должно быть заполнено'.format(key))
+
+    if len(result) > 0:
+        return '\n'.join(result)
+
+    return ''
+
+
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         loadUi(MAIN_UI_WINDOW_PATH, self)
         self.set_current_date()
 
-        # fill comboboxes with simple data
+        # fill comboboxes with data
         self.comboBox_line_number.addItems(get_mixing_line_numbers_list(FIRST_LINE_NUMBER, LAST_LINE_NUMBER))
         self.comboBox_shift_number.addItems(get_shift_letters(SHIFTS))
         self.comboBox_writeoff_shift_number.addItems(get_shift_letters(SHIFTS))
@@ -69,6 +98,10 @@ class MainWindow(QMainWindow):
         json_data = read_json_from_file(INCONSISTENCY_REASONS_FILE_PATH)
         self.comboBox_inconsistency_type.addItems(get_inconsistency_types_list(json_data))
         self.comboBox_inconsistency_type.activated.connect(lambda: self.get_inconsistency_reason_list(json_data))
+
+        # Assign actions for buttons
+        self.pushButton_ClearFields.clicked.connect(self.clean_all_forms)
+        self.pushButton_Print.clicked.connect(self.print_label)
 
         self.setFixedSize(self.size())
         self.show()
@@ -85,6 +118,41 @@ class MainWindow(QMainWindow):
         self.comboBox_shift_number.setCurrentIndex(0)
         self.comboBox_writeoff_shift_number.setCurrentIndex(0)
         self.comboBox_blank_author.setCurrentIndex(0)
+        self.spinBox_number_of_copies.setValue(NUMBER_OF_COPIES_DEFAULT_VALUE)
+        self.comboBox_inconsistency_type.setCurrentIndex(0)
+        self.comboBox_inconsistency_reason.setCurrentIndex(0)
+        self.plainTextEdit_product_name.clear()
+        self.lineEdit_operator1.clear()
+        self.lineEdit_operator2.clear()
+        self.lineEdit_explorer.clear()
+        self.plainTextEdit_comments.clear()
+
+    def print_label(self):
+        data_values = dict()
+        data_values["Дата производства"] = (self.dateEdit_producing_date.date()).toPyDate().strftime(DATE_FORMAT)
+        data_values["Линия"] = self.comboBox_line_number.currentText()
+        data_values["Наименование продукции"] = self.plainTextEdit_product_name.toPlainText()
+        data_values["Смена производства"] = self.comboBox_shift_number.currentText()
+        data_values["Смена списания"] = self.comboBox_writeoff_shift_number.currentText()
+        data_values["Оператор 1"] = self.lineEdit_operator1.text()
+        data_values["Оператор 2"] = self.lineEdit_operator2.text()
+        data_values["Тип несоответствия"] = self.comboBox_inconsistency_type.currentText()
+        data_values["Причина несоответствия"] = self.comboBox_inconsistency_reason.currentText()
+        data_values["Комментарии"] = self.plainTextEdit_comments.toPlainText()
+        data_values["Обнаружил"] = self.lineEdit_explorer.text()
+        data_values["Бланк оформил"] = self.comboBox_blank_author.currentText()
+        data_values["Кол-во копий"] = self.spinBox_number_of_copies.value()
+        data_values["Дата списания"] = (self.dateEdit_writeoff_date.date()).toPyDate().strftime(DATE_FORMAT)
+        data_check_message = data_checker(data_values)
+        self.plainTextEdit_StatusField.insertPlainText(data_check_message)
+
+        if data_check_message == '':
+            create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH, data_values)
+            self.plainTextEdit_StatusField.clear()
+            self.clean_all_forms()
+            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(LABEL_OUT_PATH))
+            startfile(LABEL_OUT_PATH, 'print')
+
 
     def get_inconsistency_reason_list(self, json_data):
         value_list = json_data[self.comboBox_inconsistency_type.currentText()]
@@ -92,8 +160,16 @@ class MainWindow(QMainWindow):
         self.comboBox_inconsistency_reason.clear()
         self.comboBox_inconsistency_reason.addItems(value_list)
 
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Quit', "Закрыть окно?", QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication([])
     main_window = MainWindow()
     app.exec_()

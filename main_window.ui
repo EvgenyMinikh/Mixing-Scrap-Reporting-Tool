@@ -71,22 +71,25 @@
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit_StatusField">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>560</y>
-      <width>511</width>
+      <width>481</width>
       <height>71</height>
      </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_Print">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>500</y>
+      <x>20</x>
+      <y>510</y>
       <width>141</width>
       <height>41</height>
      </rect>
@@ -103,8 +106,8 @@
    <widget class="QPushButton" name="pushButton_ClearFields">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>500</y>
+      <x>370</x>
+      <y>510</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -183,8 +186,8 @@
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>461</y>
+      <x>290</x>
+      <y>463</y>
       <width>104</width>
       <height>16</height>
      </rect>
@@ -195,17 +198,20 @@
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Дата списания: &lt;span style=&quot; color:#ff0000;&quot;&gt;*&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Дата списания:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
    <widget class="QDateEdit" name="dateEdit_writeoff_date">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>460</y>
+      <x>400</x>
+      <y>462</y>
       <width>101</width>
       <height>22</height>
      </rect>
@@ -214,6 +220,9 @@
      <font>
       <pointsize>10</pointsize>
      </font>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
     <property name="dateTime">
      <datetime>
@@ -551,6 +560,51 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>464</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Кол-во копий:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spinBox_number_of_copies">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>462</y>
+      <width>42</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="minimum">
+     <number>1</number>
     </property>
    </widget>
   </widget>
