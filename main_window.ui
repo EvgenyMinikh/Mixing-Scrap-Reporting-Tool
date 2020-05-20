@@ -66,7 +66,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>v 1.0</string>
+     <string>v 1.1</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit_StatusField">
@@ -90,7 +90,7 @@
      <rect>
       <x>20</x>
       <y>510</y>
-      <width>141</width>
+      <width>151</width>
       <height>41</height>
      </rect>
     </property>
@@ -605,6 +605,24 @@
     </property>
     <property name="minimum">
      <number>1</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_Saveto_PDF">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>510</y>
+      <width>141</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Сохранить в PDF</string>
     </property>
    </widget>
   </widget>

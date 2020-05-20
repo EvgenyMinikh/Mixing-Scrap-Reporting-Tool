@@ -3,6 +3,8 @@
 __pycache__
 build
 dist
+output
 *.spec
 mixing_label_template - orig.svg
 mixing.svg
+mixing.pdf

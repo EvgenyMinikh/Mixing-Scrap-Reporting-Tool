@@ -4,6 +4,8 @@ from PyQt5.uic import *
 from configparser import ConfigParser
 from json import load
 from os import path, startfile
+from svglib.svglib import svg2rlg
+from reportlab.graphics import renderPDF
 
 this_script_dir = path.dirname(path.realpath(__file__))
 
@@ -13,7 +15,8 @@ CONFIG_FILENAME = this_script_dir + '\\config.cfg'
 SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
 INCONSISTENCY_REASONS_FILE_PATH = this_script_dir + '\\list_items.json'
 LABEL_TEMPLATE_PATH = this_script_dir + '\\mixing_label_template.svg'
-LABEL_OUT_PATH = this_script_dir + '\\mixing.svg'
+LABEL_OUT_PATH_SVG = this_script_dir + '\\mixing.svg'
+LABEL_OUT_PATH_PDF = this_script_dir + '\\mixing.pdf'
 
 config = ConfigParser()
 config.read_file(open(CONFIG_FILENAME, encoding="utf8"))
@@ -66,7 +69,6 @@ def create_new_SVG_file_with_data(template_path, output_path, data_values):
 
 def get_inconsistency_types_list(json_data):
     value_list = sorted(json_data.keys())
-    value_list.insert(0, "")
     return value_list
 
 
@@ -102,6 +104,7 @@ class MainWindow(QMainWindow):
         # Assign actions for buttons
         self.pushButton_ClearFields.clicked.connect(self.clean_all_forms)
         self.pushButton_Print.clicked.connect(self.print_label)
+        self.pushButton_Saveto_PDF.clicked.connect(self.save_label)
 
         self.setFixedSize(self.size())
         self.show()
@@ -127,7 +130,7 @@ class MainWindow(QMainWindow):
         self.lineEdit_explorer.clear()
         self.plainTextEdit_comments.clear()
 
-    def print_label(self):
+    def get_all_values_from_forms(self):
         data_values = dict()
         data_values["Дата производства"] = (self.dateEdit_producing_date.date()).toPyDate().strftime(DATE_FORMAT)
         data_values["Линия"] = self.comboBox_line_number.currentText()
@@ -143,20 +146,37 @@ class MainWindow(QMainWindow):
         data_values["Бланк оформил"] = self.comboBox_blank_author.currentText()
         data_values["Кол-во копий"] = self.spinBox_number_of_copies.value()
         data_values["Дата списания"] = (self.dateEdit_writeoff_date.date()).toPyDate().strftime(DATE_FORMAT)
+        return data_values
+
+    def print_label(self):
+        data_values = self.get_all_values_from_forms()
         data_check_message = data_checker(data_values)
         self.plainTextEdit_StatusField.insertPlainText(data_check_message)
 
         if data_check_message == '':
-            create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH, data_values)
+            create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
             self.plainTextEdit_StatusField.clear()
             self.clean_all_forms()
-            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(LABEL_OUT_PATH))
-            startfile(LABEL_OUT_PATH, 'print')
+            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(LABEL_OUT_PATH_PDF))
+            drawing = svg2rlg(LABEL_OUT_PATH_SVG)
+            renderPDF.drawToFile(drawing, LABEL_OUT_PATH_PDF)
+            startfile(LABEL_OUT_PATH_PDF, 'print')
 
+    def save_label(self):
+        data_values = self.get_all_values_from_forms()
+        data_check_message = data_checker(data_values)
+        self.plainTextEdit_StatusField.insertPlainText(data_check_message)
+
+        if data_check_message == '':
+            create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
+            self.plainTextEdit_StatusField.clear()
+            self.clean_all_forms()
+            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {}'.format(LABEL_OUT_PATH_PDF))
+            drawing = svg2rlg(LABEL_OUT_PATH_SVG)
+            renderPDF.drawToFile(drawing, LABEL_OUT_PATH_PDF)
 
     def get_inconsistency_reason_list(self, json_data):
         value_list = json_data[self.comboBox_inconsistency_type.currentText()]
-        value_list.insert(0, "")
         self.comboBox_inconsistency_reason.clear()
         self.comboBox_inconsistency_reason.addItems(value_list)
 
