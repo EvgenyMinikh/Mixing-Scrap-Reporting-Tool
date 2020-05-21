@@ -46,16 +46,6 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEdit_product_name">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>110</y>
-      <width>291</width>
-      <height>41</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
@@ -76,9 +66,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>560</y>
+      <y>540</y>
       <width>481</width>
-      <height>71</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="readOnly">
@@ -89,7 +79,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>510</y>
+      <y>490</y>
       <width>151</width>
       <height>41</height>
      </rect>
@@ -107,7 +97,7 @@
     <property name="geometry">
      <rect>
       <x>370</x>
-      <y>510</y>
+      <y>490</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -173,21 +163,11 @@
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEdit_comments">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>350</y>
-      <width>361</width>
-      <height>41</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
       <x>290</x>
-      <y>463</y>
+      <y>443</y>
       <width>104</width>
       <height>16</height>
      </rect>
@@ -211,7 +191,7 @@
     <property name="geometry">
      <rect>
       <x>400</x>
-      <y>462</y>
+      <y>442</y>
       <width>101</width>
       <height>22</height>
      </rect>
@@ -276,7 +256,7 @@
     <property name="geometry">
      <rect>
       <x>25</x>
-      <y>431</y>
+      <y>411</y>
       <width>109</width>
       <height>16</height>
      </rect>
@@ -297,7 +277,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>430</y>
+      <y>410</y>
       <width>211</width>
       <height>20</height>
      </rect>
@@ -307,7 +287,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>401</y>
+      <y>381</y>
       <width>84</width>
       <height>16</height>
      </rect>
@@ -328,8 +308,8 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>400</y>
-      <width>361</width>
+      <y>380</y>
+      <width>211</width>
       <height>20</height>
      </rect>
     </property>
@@ -569,7 +549,7 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>464</y>
+      <y>444</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -593,7 +573,7 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>462</y>
+      <y>442</y>
       <width>42</width>
       <height>22</height>
      </rect>
@@ -611,7 +591,7 @@
     <property name="geometry">
      <rect>
       <x>200</x>
-      <y>510</y>
+      <y>490</y>
       <width>141</width>
       <height>41</height>
      </rect>
@@ -623,6 +603,32 @@
     </property>
     <property name="text">
      <string>Сохранить в PDF</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_product_name">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>110</y>
+      <width>201</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_comments">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>350</y>
+      <width>371</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
@@ -637,6 +643,26 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>dateEdit_producing_date</tabstop>
+  <tabstop>comboBox_line_number</tabstop>
+  <tabstop>lineEdit_product_name</tabstop>
+  <tabstop>comboBox_shift_number</tabstop>
+  <tabstop>comboBox_writeoff_shift_number</tabstop>
+  <tabstop>lineEdit_operator1</tabstop>
+  <tabstop>lineEdit_operator2</tabstop>
+  <tabstop>comboBox_inconsistency_type</tabstop>
+  <tabstop>comboBox_inconsistency_reason</tabstop>
+  <tabstop>lineEdit_comments</tabstop>
+  <tabstop>lineEdit_explorer</tabstop>
+  <tabstop>comboBox_blank_author</tabstop>
+  <tabstop>pushButton_Print</tabstop>
+  <tabstop>pushButton_Saveto_PDF</tabstop>
+  <tabstop>pushButton_ClearFields</tabstop>
+  <tabstop>spinBox_number_of_copies</tabstop>
+  <tabstop>dateEdit_writeoff_date</tabstop>
+  <tabstop>plainTextEdit_StatusField</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

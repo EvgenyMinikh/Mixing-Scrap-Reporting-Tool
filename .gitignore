@@ -5,6 +5,8 @@ build
 dist
 output
 *.spec
+*.xlsx
+*.xlsm
 mixing_label_template - orig.svg
 mixing.svg
 mixing.pdf

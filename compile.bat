@@ -1,4 +1,4 @@
-pyinstaller --clean -F -i label.ico --additional-hooks-dir=hooks Mixing_Scrap_Reporting.py
+pyinstaller --clean -F -i label.ico --noconsole --additional-hooks-dir=hooks Mixing_Scrap_Reporting.py
 copy config.cfg .\dist\
 copy list_items.json .\dist\
 copy main_window.ui .\dist\
