@@ -56,7 +56,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>v 1.1</string>
+     <string>v 1.2</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit_StatusField">
@@ -109,16 +109,6 @@
     </property>
     <property name="text">
      <string>Очистить поля</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_operator1">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>220</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
     </property>
    </widget>
    <widget class="QLabel" name="label_8">
@@ -282,6 +272,9 @@
       <height>20</height>
      </rect>
     </property>
+    <property name="maxVisibleItems">
+     <number>15</number>
+    </property>
    </widget>
    <widget class="QLabel" name="label_13">
     <property name="geometry">
@@ -345,16 +338,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit_operator2">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>249</y>
-      <width>201</width>
-      <height>20</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
@@ -405,6 +388,9 @@
       <width>91</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="maxVisibleItems">
+     <number>15</number>
     </property>
    </widget>
    <widget class="QLabel" name="label_11">
@@ -631,6 +617,32 @@
      <string/>
     </property>
    </widget>
+   <widget class="QComboBox" name="comboBox_operator1">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>218</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maxVisibleItems">
+     <number>25</number>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_operator2">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>248</y>
+      <width>261</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maxVisibleItems">
+     <number>25</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -649,8 +661,8 @@
   <tabstop>lineEdit_product_name</tabstop>
   <tabstop>comboBox_shift_number</tabstop>
   <tabstop>comboBox_writeoff_shift_number</tabstop>
-  <tabstop>lineEdit_operator1</tabstop>
-  <tabstop>lineEdit_operator2</tabstop>
+  <tabstop>comboBox_operator1</tabstop>
+  <tabstop>comboBox_operator2</tabstop>
   <tabstop>comboBox_inconsistency_type</tabstop>
   <tabstop>comboBox_inconsistency_reason</tabstop>
   <tabstop>lineEdit_comments</tabstop>
@@ -659,9 +671,9 @@
   <tabstop>pushButton_Print</tabstop>
   <tabstop>pushButton_Saveto_PDF</tabstop>
   <tabstop>pushButton_ClearFields</tabstop>
+  <tabstop>plainTextEdit_StatusField</tabstop>
   <tabstop>spinBox_number_of_copies</tabstop>
   <tabstop>dateEdit_writeoff_date</tabstop>
-  <tabstop>plainTextEdit_StatusField</tabstop>
  </tabstops>
  <resources/>
  <connections/>

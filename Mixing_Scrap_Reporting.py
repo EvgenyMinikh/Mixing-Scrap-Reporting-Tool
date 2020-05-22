@@ -14,6 +14,7 @@ NUMBER_OF_COPIES_DEFAULT_VALUE = 1
 MAIN_UI_WINDOW_PATH = this_script_dir + '\\main_window.ui'
 CONFIG_FILENAME = this_script_dir + '\\config.cfg'
 SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
+OPERATORS_FILE_PATH = this_script_dir + '\\operators.csv'
 INCONSISTENCY_REASONS_FILE_PATH = this_script_dir + '\\list_items.json'
 LABEL_TEMPLATE_PATH = this_script_dir + '\\mixing_label_template.svg'
 LABEL_OUT_PATH_SVG = this_script_dir + '\\mixing.svg'
@@ -22,6 +23,7 @@ LABEL_OUT_PATH_PDF = this_script_dir + '\\mixing.pdf'
 config = ConfigParser()
 config.read_file(open(CONFIG_FILENAME, encoding="utf8"))
 BUFFER_WORKBOOK_PATH = config.get('Paths', 'BUFFER_WORKBOOK_PATH')
+IS_WB_HAS_MACROS = True if BUFFER_WORKBOOK_PATH.split('.')[-1].lower() == "xlsm" else False
 FIRST_LINE_NUMBER = int(config.get('List Settings', 'FIRST_LINE_NUMBER'))
 LAST_LINE_NUMBER = int(config.get('List Settings', 'LAST_LINE_NUMBER'))
 SHIFTS = config.get('List Settings', 'SHIFTS')
@@ -40,7 +42,7 @@ def get_shift_letters(st):
     return result
 
 
-def get_shift_supervisors_list(file_path):
+def get_user_list_from_file(file_path):
     result = []
     with open(file_path, mode='r', encoding='UTF8') as f:
         for line in f:
@@ -103,7 +105,7 @@ def get_excel_cells_order():
 
 def write_data_into_workbook(wb_path, data_to_write):
     column_names = get_excel_cells_order()
-    wb = load_workbook(filename=wb_path)
+    wb = load_workbook(filename=wb_path, keep_vba=IS_WB_HAS_MACROS)
     ws = wb[SHEET_NAME]
     line_number_to_write = len(ws['A']) + 1
 
@@ -125,8 +127,12 @@ class MainWindow(QMainWindow):
         self.comboBox_line_number.addItems(get_mixing_line_numbers_list(FIRST_LINE_NUMBER, LAST_LINE_NUMBER))
         self.comboBox_shift_number.addItems(get_shift_letters(SHIFTS))
         self.comboBox_writeoff_shift_number.addItems(get_shift_letters(SHIFTS))
+        self.comboBox_blank_author.addItems(get_user_list_from_file(SHIFT_SUPERVISORS_FILE_PATH))
+        self.comboBox_operator1.addItems(get_user_list_from_file(OPERATORS_FILE_PATH))
 
-        self.comboBox_blank_author.addItems(get_shift_supervisors_list(SHIFT_SUPERVISORS_FILE_PATH))
+        self.operator2_list = get_user_list_from_file(OPERATORS_FILE_PATH)
+        self.operator2_list[0] = 'Нет'
+        self.comboBox_operator2.addItems(self.operator2_list)
 
         json_data = read_json_from_file(INCONSISTENCY_REASONS_FILE_PATH)
         self.comboBox_inconsistency_type.addItems(get_inconsistency_types_list(json_data))
@@ -152,14 +158,14 @@ class MainWindow(QMainWindow):
         self.comboBox_shift_number.setCurrentIndex(0)
         self.comboBox_writeoff_shift_number.setCurrentIndex(0)
         self.comboBox_blank_author.setCurrentIndex(0)
+        self.comboBox_operator1.setCurrentIndex(0)
+        self.comboBox_operator2.setCurrentIndex(0)
         self.spinBox_number_of_copies.setValue(NUMBER_OF_COPIES_DEFAULT_VALUE)
         self.comboBox_inconsistency_type.setCurrentIndex(0)
         self.comboBox_inconsistency_reason.setCurrentIndex(0)
         self.lineEdit_product_name.clear()
-        self.lineEdit_operator1.clear()
-        self.lineEdit_operator2.clear()
-        self.lineEdit_explorer.clear()
         self.lineEdit_comments.clear()
+        self.lineEdit_explorer.clear()
 
     def get_all_values_from_forms(self):
         data_values = dict()
@@ -168,14 +174,13 @@ class MainWindow(QMainWindow):
         data_values["Наименование продукции"] = self.lineEdit_product_name.text()
         data_values["Смена производства"] = self.comboBox_shift_number.currentText()
         data_values["Смена списания"] = self.comboBox_writeoff_shift_number.currentText()
-        data_values["Оператор 1"] = self.lineEdit_operator1.text()
-        data_values["Оператор 2"] = self.lineEdit_operator2.text()
+        data_values["Оператор 1"] = self.comboBox_operator1.currentText()
+        data_values["Оператор 2"] = self.comboBox_operator2.currentText()
         data_values["Тип несоответствия"] = self.comboBox_inconsistency_type.currentText()
         data_values["Причина несоответствия"] = self.comboBox_inconsistency_reason.currentText()
         data_values["Комментарии"] = self.lineEdit_comments.text()
         data_values["Обнаружил"] = self.lineEdit_explorer.text()
         data_values["Бланк оформил"] = self.comboBox_blank_author.currentText()
-        # data_values["Кол-во копий"] = self.spinBox_number_of_copies.value()
         data_values["Дата списания"] = (self.dateEdit_writeoff_date.date()).toPyDate().strftime(DATE_FORMAT)
         return data_values
 
