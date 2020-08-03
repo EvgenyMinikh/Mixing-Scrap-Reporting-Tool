@@ -3,7 +3,7 @@ from PyQt5.QtCore import *
 from PyQt5.uic import *
 from configparser import ConfigParser
 from json import load
-from os import path, startfile
+from os import path, startfile, sep
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 from openpyxl import load_workbook
@@ -103,6 +103,15 @@ def get_excel_cells_order():
     column_names["Бланк оформил"] = 'L'
     return column_names
 
+
+def check_workbook_ready_to_write(wb_path):
+    file_name = wb_path.split(sep)[-1]
+    full_wb_temp_path = wb_path.replace(file_name, '~$' + file_name)
+    is_file_exists = path.isfile(full_wb_temp_path)
+
+    return is_file_exists
+
+
 def write_data_into_workbook(wb_path, data_to_write):
     column_names = get_excel_cells_order()
     wb = load_workbook(filename=wb_path, keep_vba=IS_WB_HAS_MACROS)
@@ -129,6 +138,7 @@ class MainWindow(QMainWindow):
         self.comboBox_writeoff_shift_number.addItems(get_shift_letters(SHIFTS))
         self.comboBox_blank_author.addItems(get_user_list_from_file(SHIFT_SUPERVISORS_FILE_PATH))
         self.comboBox_operator1.addItems(get_user_list_from_file(OPERATORS_FILE_PATH))
+        self.comboBox_explorer.addItems(get_user_list_from_file(OPERATORS_FILE_PATH))
 
         self.operator2_list = get_user_list_from_file(OPERATORS_FILE_PATH)
         self.operator2_list[0] = 'Нет'
@@ -160,12 +170,12 @@ class MainWindow(QMainWindow):
         self.comboBox_blank_author.setCurrentIndex(0)
         self.comboBox_operator1.setCurrentIndex(0)
         self.comboBox_operator2.setCurrentIndex(0)
+        self.comboBox_explorer.setCurrentIndex(0)
         self.spinBox_number_of_copies.setValue(NUMBER_OF_COPIES_DEFAULT_VALUE)
         self.comboBox_inconsistency_type.setCurrentIndex(0)
         self.comboBox_inconsistency_reason.setCurrentIndex(0)
         self.lineEdit_product_name.clear()
         self.lineEdit_comments.clear()
-        self.lineEdit_explorer.clear()
 
     def get_all_values_from_forms(self):
         data_values = dict()
@@ -179,12 +189,17 @@ class MainWindow(QMainWindow):
         data_values["Тип несоответствия"] = self.comboBox_inconsistency_type.currentText()
         data_values["Причина несоответствия"] = self.comboBox_inconsistency_reason.currentText()
         data_values["Комментарии"] = self.lineEdit_comments.text()
-        data_values["Обнаружил"] = self.lineEdit_explorer.text()
+        data_values["Обнаружил"] = self.comboBox_explorer.currentText()
         data_values["Бланк оформил"] = self.comboBox_blank_author.currentText()
         data_values["Дата списания"] = (self.dateEdit_writeoff_date.date()).toPyDate().strftime(DATE_FORMAT)
         return data_values
 
     def print_label(self):
+        if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
+            self.plainTextEdit_StatusField.clear()
+            self.plainTextEdit_StatusField.insertPlainText("Файл {} кем-то открыт в Excel. Сначала закройте файл".format(BUFFER_WORKBOOK_PATH))
+            return
+
         data_values = self.get_all_values_from_forms()
         data_check_message = data_checker(data_values)
         self.plainTextEdit_StatusField.insertPlainText(data_check_message)
@@ -200,6 +215,11 @@ class MainWindow(QMainWindow):
             startfile(LABEL_OUT_PATH_PDF, 'print')
 
     def save_label(self):
+        if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
+            self.plainTextEdit_StatusField.clear()
+            self.plainTextEdit_StatusField.insertPlainText("Файл {} кем-то открыт в Excel. Сначала закройте файл.".format(BUFFER_WORKBOOK_PATH))
+            return
+
         data_values = self.get_all_values_from_forms()
         data_check_message = data_checker(data_values)
         self.plainTextEdit_StatusField.insertPlainText(data_check_message)
