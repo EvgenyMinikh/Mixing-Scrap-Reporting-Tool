@@ -21,7 +21,7 @@ LABEL_OUT_PATH_SVG = this_script_dir + '\\mixing.svg'
 LABEL_OUT_PATH_PDF = this_script_dir + '\\mixing.pdf'
 
 config = ConfigParser()
-config.read_file(open(CONFIG_FILENAME, encoding="utf8"))
+config.read_file(open(CONFIG_FILENAME))
 BUFFER_WORKBOOK_PATH = config.get('Paths', 'BUFFER_WORKBOOK_PATH')
 IS_WB_HAS_MACROS = True if BUFFER_WORKBOOK_PATH.split('.')[-1].lower() == "xlsm" else False
 FIRST_LINE_NUMBER = int(config.get('List Settings', 'FIRST_LINE_NUMBER'))
@@ -29,6 +29,7 @@ LAST_LINE_NUMBER = int(config.get('List Settings', 'LAST_LINE_NUMBER'))
 SHIFTS = config.get('List Settings', 'SHIFTS')
 DATE_FORMAT = config.get('Common Config', 'DATE_FORMAT')
 SHEET_NAME = config.get('Paths', 'SHEET_NAME')
+
 
 def get_mixing_line_numbers_list(first, last):
     result = [str(i) for i in range(first, last + 1)]

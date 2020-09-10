@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>534</width>
-    <height>669</height>
+    <width>530</width>
+    <height>660</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -652,8 +652,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>534</width>
-     <height>21</height>
+     <width>530</width>
+     <height>26</height>
     </rect>
    </property>
   </widget>
@@ -669,13 +669,14 @@
   <tabstop>comboBox_inconsistency_type</tabstop>
   <tabstop>comboBox_inconsistency_reason</tabstop>
   <tabstop>lineEdit_comments</tabstop>
+  <tabstop>comboBox_explorer</tabstop>
   <tabstop>comboBox_blank_author</tabstop>
+  <tabstop>dateEdit_writeoff_date</tabstop>
   <tabstop>pushButton_Print</tabstop>
   <tabstop>pushButton_Saveto_PDF</tabstop>
   <tabstop>pushButton_ClearFields</tabstop>
-  <tabstop>plainTextEdit_StatusField</tabstop>
   <tabstop>spinBox_number_of_copies</tabstop>
-  <tabstop>dateEdit_writeoff_date</tabstop>
+  <tabstop>plainTextEdit_StatusField</tabstop>
  </tabstops>
  <resources/>
  <connections/>
