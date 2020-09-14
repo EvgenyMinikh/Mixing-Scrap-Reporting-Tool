@@ -113,17 +113,25 @@ def check_workbook_ready_to_write(wb_path):
     return is_file_exists
 
 
-def write_data_into_workbook(wb_path, data_to_write):
-    column_names = get_excel_cells_order()
+def write_data_into_workbook(wb_path, data_to_write, aux_sheet):
+
+    def write_data_into_ws(wb, data_to_write, sheet_name):
+        column_names = get_excel_cells_order()
+        ws = wb[sheet_name]
+        line_number_to_write = len(ws['A']) + 1
+
+        for key in data_to_write.keys():
+            if key in column_names.keys():
+                cell_address = column_names[key] + str(line_number_to_write)
+                ws[cell_address] = data_to_write[key]
+
     wb = load_workbook(filename=wb_path, keep_vba=IS_WB_HAS_MACROS)
-    ws = wb[SHEET_NAME]
-    line_number_to_write = len(ws['A']) + 1
+    write_data_into_ws(wb, data_to_write, SHEET_NAME)
 
-    for key in data_to_write.keys():
-        if key in column_names.keys():
-            cell_address = column_names[key] + str(line_number_to_write)
-            ws[cell_address] = data_to_write[key]
+    if aux_sheet not in wb.sheetnames:
+        wb.create_sheet(aux_sheet)
 
+    write_data_into_ws(wb, data_to_write, aux_sheet)
     wb.save(wb_path)
 
 
@@ -195,10 +203,15 @@ class MainWindow(QMainWindow):
         data_values["Дата списания"] = (self.dateEdit_writeoff_date.date()).toPyDate().strftime(DATE_FORMAT)
         return data_values
 
+    def file_is_opened_dialog_window(self):
+        msg = "Не могу записать данные в файл. Файл {}\nкем-то открыт в Excel.\n\nДля продолжения работы сначала закройте файл".format(BUFFER_WORKBOOK_PATH)
+        self.plainTextEdit_StatusField.clear()
+        self.plainTextEdit_StatusField.insertPlainText(msg)
+        QMessageBox.warning(self, "Can not save data", msg, buttons=QMessageBox.Ok)
+
     def print_label(self):
         if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
-            self.plainTextEdit_StatusField.clear()
-            self.plainTextEdit_StatusField.insertPlainText("Файл {} кем-то открыт в Excel. Сначала закройте файл".format(BUFFER_WORKBOOK_PATH))
+            self.file_is_opened_dialog_window()
             return
 
         data_values = self.get_all_values_from_forms()
@@ -206,7 +219,7 @@ class MainWindow(QMainWindow):
         self.plainTextEdit_StatusField.insertPlainText(data_check_message)
 
         if data_check_message == '':
-            write_data_into_workbook(BUFFER_WORKBOOK_PATH, data_values)
+            write_data_into_workbook(BUFFER_WORKBOOK_PATH, data_values, data_values["Тип несоответствия"])
             create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
             self.plainTextEdit_StatusField.clear()
             self.clean_all_forms()
@@ -217,8 +230,7 @@ class MainWindow(QMainWindow):
 
     def save_label(self):
         if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
-            self.plainTextEdit_StatusField.clear()
-            self.plainTextEdit_StatusField.insertPlainText("Файл {} кем-то открыт в Excel. Сначала закройте файл.".format(BUFFER_WORKBOOK_PATH))
+            self.file_is_opened_dialog_window()
             return
 
         data_values = self.get_all_values_from_forms()
@@ -226,7 +238,7 @@ class MainWindow(QMainWindow):
         self.plainTextEdit_StatusField.insertPlainText(data_check_message)
 
         if data_check_message == '':
-            write_data_into_workbook(BUFFER_WORKBOOK_PATH, data_values)
+            write_data_into_workbook(BUFFER_WORKBOOK_PATH, data_values, data_values["Тип несоответствия"])
             create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
             self.plainTextEdit_StatusField.clear()
             self.clean_all_forms()
