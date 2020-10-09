@@ -7,6 +7,7 @@ from os import path, startfile, sep
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 from openpyxl import load_workbook
+import re
 
 this_script_dir = path.dirname(path.realpath(__file__))
 
@@ -16,9 +17,6 @@ CONFIG_FILENAME = this_script_dir + '\\config.cfg'
 SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
 OPERATORS_FILE_PATH = this_script_dir + '\\operators.csv'
 INCONSISTENCY_REASONS_FILE_PATH = this_script_dir + '\\list_items.json'
-LABEL_TEMPLATE_PATH = this_script_dir + '\\mixing_label_template.svg'
-LABEL_OUT_PATH_SVG = this_script_dir + '\\mixing.svg'
-LABEL_OUT_PATH_PDF = this_script_dir + '\\mixing.pdf'
 
 config = ConfigParser()
 config.read_file(open(CONFIG_FILENAME))
@@ -29,6 +27,9 @@ LAST_LINE_NUMBER = int(config.get('List Settings', 'LAST_LINE_NUMBER'))
 SHIFTS = config.get('List Settings', 'SHIFTS')
 DATE_FORMAT = config.get('Common Config', 'DATE_FORMAT')
 SHEET_NAME = config.get('Paths', 'SHEET_NAME')
+LABEL_OUT_PATH_PDF = config.get('Paths', 'LABEL_OUT_PATH_PDF')
+LABEL_TEMPLATE_PATH = config.get('Paths', 'LABEL_TEMPLATE_PATH')
+LABEL_OUT_PATH_SVG = config.get('Paths', 'LABEL_OUT_PATH_SVG')
 
 
 def get_mixing_line_numbers_list(first, last):
@@ -61,13 +62,27 @@ def read_json_from_file(path):
 
 
 def create_new_SVG_file_with_data(template_path, output_path, data_values):
+    column_names_limits = set_column_width_limit(get_excel_cells_order())
+
     with open(template_path, mode='r', encoding='UTF8') as f:
         content = f.read()
-
         for key, value in data_values.items():
-            content = content.replace('{%s}' % key, str(value))
+            value = str(value)
+
+            if column_names_limits[key] != -1:
+                list_values = re.findall(r'.{1,%d}' % column_names_limits[key], value)
+
+                for i in range(len(list_values)):
+                    value = list_values[i]
+                    content = content.replace('{%s%d}' % (key, i), value)
+            else:
+                content = content.replace('{%s}' % key, value)
 
     with open(output_path, mode='w', encoding='UTF8') as f:
+
+        for st in column_names_limits:
+            content = re.sub(r'\{%s\d+\}' % st, '', content)  # Clean up SVG template from redundant fillers
+
         f.write(content)
 
 
@@ -103,6 +118,18 @@ def get_excel_cells_order():
     column_names["Обнаружил"] = 'K'
     column_names["Бланк оформил"] = 'L'
     return column_names
+
+
+def set_column_width_limit(column_names):
+    column_names_limits = dict()
+    for key in column_names.keys():
+        column_names_limits[key] = -1
+
+    column_names_limits["Дата списания"] = -1
+    column_names_limits["Комментарии"] = 45
+    column_names_limits["Наименование продукции"] = 35
+
+    return column_names_limits
 
 
 def check_workbook_ready_to_write(wb_path):
