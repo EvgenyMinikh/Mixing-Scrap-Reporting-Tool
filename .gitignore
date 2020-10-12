@@ -1,4 +1,5 @@
 .idea/
+sumatrapdfcache/
 .idea
 __pycache__
 build
@@ -13,3 +14,6 @@ mixing.svg
 mixing.pdf
 config_.cfg
 test.py
+SumatraPDF.exe
+SumatraPDF-settings.txt
+*.dll

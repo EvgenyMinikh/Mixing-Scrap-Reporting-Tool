@@ -3,15 +3,17 @@ from PyQt5.QtCore import *
 from PyQt5.uic import *
 from configparser import ConfigParser
 from json import load
-from os import path, startfile, sep
+from os import path, sep
 from svglib.svglib import svg2rlg
 from reportlab.graphics import renderPDF
 from openpyxl import load_workbook
-import re
+from re import findall, sub
+from subprocess import run
 
 this_script_dir = path.dirname(path.realpath(__file__))
 
 NUMBER_OF_COPIES_DEFAULT_VALUE = 1
+PDF_BROWSER_PATH = this_script_dir + '\\SumatraPDF.exe'
 MAIN_UI_WINDOW_PATH = this_script_dir + '\\main_window.ui'
 CONFIG_FILENAME = this_script_dir + '\\config.cfg'
 SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
@@ -70,7 +72,7 @@ def create_new_SVG_file_with_data(template_path, output_path, data_values):
             value = str(value)
 
             if column_names_limits[key] != -1:
-                list_values = re.findall(r'.{1,%d}' % column_names_limits[key], value)
+                list_values = findall(r'.{1,%d}' % column_names_limits[key], value)
 
                 for i in range(len(list_values)):
                     value = list_values[i]
@@ -81,7 +83,7 @@ def create_new_SVG_file_with_data(template_path, output_path, data_values):
     with open(output_path, mode='w', encoding='UTF8') as f:
 
         for st in column_names_limits:
-            content = re.sub(r'\{%s\d+\}' % st, '', content)  # Clean up SVG template from redundant fillers
+            content = sub(r'\{%s\d+\}' % st, '', content)  # Clean up SVG template from redundant fillers
 
         f.write(content)
 
@@ -253,7 +255,7 @@ class MainWindow(QMainWindow):
             self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(LABEL_OUT_PATH_PDF))
             drawing = svg2rlg(LABEL_OUT_PATH_SVG)
             renderPDF.drawToFile(drawing, LABEL_OUT_PATH_PDF)
-            startfile(LABEL_OUT_PATH_PDF, 'print')
+            run([PDF_BROWSER_PATH, '-print-dialog', '-exit-when-done', LABEL_OUT_PATH_PDF])
 
     def save_label(self):
         if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
