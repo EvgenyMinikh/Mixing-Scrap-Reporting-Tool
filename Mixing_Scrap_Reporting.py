@@ -9,6 +9,7 @@ from reportlab.graphics import renderPDF
 from openpyxl import load_workbook
 from re import findall, sub
 from subprocess import run
+from datetime import datetime
 
 this_script_dir = path.dirname(path.realpath(__file__))
 
@@ -19,6 +20,7 @@ CONFIG_FILENAME = this_script_dir + '\\config.cfg'
 SHIFT_SUPERVISORS_FILE_PATH = this_script_dir + '\\shift_supervisors.csv'
 OPERATORS_FILE_PATH = this_script_dir + '\\operators.csv'
 INCONSISTENCY_REASONS_FILE_PATH = this_script_dir + '\\list_items.json'
+PDF_TIMESTAMP_FORMAT = '\\image_%d%m%y_%H%M%S.pdf'
 
 config = ConfigParser()
 config.read_file(open(CONFIG_FILENAME))
@@ -164,6 +166,10 @@ def write_data_into_workbook(wb_path, data_to_write, aux_sheet):
     wb.save(wb_path)
 
 
+def get_pdf_name_to_save():
+    return LABEL_OUT_PATH_PDF + datetime.now().strftime(PDF_TIMESTAMP_FORMAT)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -252,10 +258,13 @@ class MainWindow(QMainWindow):
             create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
             self.plainTextEdit_StatusField.clear()
             self.clean_all_forms()
-            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(LABEL_OUT_PATH_PDF))
+
+            pdf_filename_to_save = get_pdf_name_to_save()
+
+            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {} и отправлен на печать'.format(pdf_filename_to_save))
             drawing = svg2rlg(LABEL_OUT_PATH_SVG)
-            renderPDF.drawToFile(drawing, LABEL_OUT_PATH_PDF)
-            run([PDF_BROWSER_PATH, '-print-dialog', '-exit-when-done', LABEL_OUT_PATH_PDF])
+            renderPDF.drawToFile(drawing, pdf_filename_to_save)
+            run([PDF_BROWSER_PATH, '-print-dialog', '-exit-when-done', pdf_filename_to_save])
 
     def save_label(self):
         if check_workbook_ready_to_write(BUFFER_WORKBOOK_PATH):
@@ -271,9 +280,12 @@ class MainWindow(QMainWindow):
             create_new_SVG_file_with_data(LABEL_TEMPLATE_PATH, LABEL_OUT_PATH_SVG, data_values)
             self.plainTextEdit_StatusField.clear()
             self.clean_all_forms()
-            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {}'.format(LABEL_OUT_PATH_PDF))
+
+            pdf_filename_to_save = get_pdf_name_to_save()
+
+            self.plainTextEdit_StatusField.insertPlainText('Ярлык сохранен в {}'.format(pdf_filename_to_save))
             drawing = svg2rlg(LABEL_OUT_PATH_SVG)
-            renderPDF.drawToFile(drawing, LABEL_OUT_PATH_PDF)
+            renderPDF.drawToFile(drawing, pdf_filename_to_save)
 
     def get_inconsistency_reason_list(self, json_data):
         value_list = json_data[self.comboBox_inconsistency_type.currentText()]
